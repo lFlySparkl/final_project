@@ -1,4 +1,4 @@
-from final_project import final_project
+import final_project as c
 import clean
 
 
@@ -23,7 +23,7 @@ def hello_func(*args):
     return "How can I help you?"
 
 def add_contact():
-    final_project.Record.add_phone
+    c.Record.add_phone()
 
 @user_error
 def add_func(*args):
@@ -107,6 +107,10 @@ def parcer(text: str):
 
 def main():
     while True:
+        book = c.AddressBook()
+        unpack_user = book.unpack_user()
+        print(unpack_user)
+
         user_input = input("Write comand:").lower()
         func, data = parcer(user_input)
         print(func(*data))
