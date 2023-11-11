@@ -243,18 +243,6 @@ def search(*args):
     return records.search(*args)
 
 
-# def save_ab(*args):
-#     records.save_address_book()
-#     return "Address book saved successful"
-
-
-# def load_ab(*args):
-#     global records
-#     load_records = records.load_address_book()
-#     records = load_records
-#     return "Address book loaded successful"
-
-
 def user_error(func):
     def inner(*args):
         try:
