@@ -214,6 +214,8 @@ class AddressBook(UserDict):
             raise StopIteration("Empty list")
 
     def pack_user(self):
+        self.data = records
+        print(records.data, records, self.data)
         file_name = "C:\\py_robot\\users.bin"
         with open(file_name, "wb") as fh:
             print(self.data)
@@ -228,6 +230,7 @@ class AddressBook(UserDict):
 
             for name, object in unpacked.items():
                 self.data[name] = object
+            print(self.data)
         else:
             return "File not found."
 
@@ -238,18 +241,6 @@ records = AddressBook()
 
 def search(*args):
     return records.search(*args)
-
-
-# def save_ab(*args):
-#     records.save_address_book()
-#     return "Address book saved successful"
-
-
-# def load_ab(*args):
-#     global records
-#     load_records = records.load_address_book()
-#     records = load_records
-#     return "Address book loaded successful"
 
 
 def user_error(func):
