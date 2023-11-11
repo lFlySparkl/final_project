@@ -31,6 +31,7 @@
 
 from collections import UserDict
 from datetime import datetime
+import clean
 import pickle
 import re
 
@@ -229,25 +230,24 @@ class Iterator:
             return self.adressBook.data[self.current_value]
         raise StopIteration
 
-
-if __name__ == "__main__":
-    book = AddressBook()
-    unpack_user = book.unpack_user()
-    book.search_user()
+# if __name__ == "__main__":
+    # book = AddressBook()
+    # unpack_user = book.unpack_user()
+    # book.search_user()
     # print(unpack_user)
-    john_record = Record("Dylan")
-    john_record.add_phone("5489789775")
-    john_record.add_phone("6666666666")
-    book.add_record(john_record)
+    # john_record = Record("Dylan")
+    # john_record.add_phone("5489789775")
+    # john_record.add_phone("6666666666")
+    # book.add_record(john_record)
     # john_record.days_to_birthday("05-12-1976")
-    john_record
-    book.add_record(john_record)
-    john_record
+    # john_record
+    # book.add_record(john_record)
+    # john_record
     # print(john_record)
-    jane_record = Record("Derek")
+    # jane_record = Record("Derek")
     # jane_record.days_to_birthday("20.11.2002")
-    jane_record.add_phone("2222222222")
-    book.add_record(jane_record)
+    # jane_record.add_phone("2222222222")
+    # book.add_record(jane_record)
     # print(jane_record)
     # john = book.find("John")
     # john_record.edit_phone("1234567890", "1112223333")
@@ -255,4 +255,4 @@ if __name__ == "__main__":
     # john_record.find_phone("1234567890")
     # found_phone2 = john_record.find_phone("1112223333")
 
-    pack_user = book.pack_user()
+    # pack_user = book.pack_user()
