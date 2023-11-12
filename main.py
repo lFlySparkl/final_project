@@ -1,41 +1,36 @@
-# 1.зберігати контакти з іменами, адресами, номерами телефонів, email та днями народження до книги контактів;       %%% Реализовано
+# 1.зберігати контакти з іменами, адресами, номерами телефонів, email та днями народження до книги контактів;       %%% Впроцессе
 # 2.виводити список контактів, у яких день народження через задану кількість днів від поточної дати;                %%% Создать новую функцию (доработка функции из дз 8) 
-# 3.перевіряти правильність введеного номера телефону та email під час створення або редагування запису             %%% Нужно добавить
+# 3.перевіряти правильність введеного номера телефону та email під час створення або редагування запису 
 # та повідомляти користувача у разі некоректного введення;                                                          %%% Частично сделанно, доработка проверки при редактировании (возможно исправление проверки)
 # 4.здійснювати пошук контактів серед контактів книги;                                                              %%% Реализовано
 # 5.редагувати та видаляти записи з книги контактів;                                                                %%% Реализовано
+
 # 6.зберігати нотатки з текстовою інформацією;                                                                      %%% Создать новую функцию (сохраняем как текст, если захотим можно сделать доп функционал под каждый контакт, с выводом в дальнейшем)
 # 7.проводити пошук за нотатками;                                                                                   %%% Создать новую функцию
 # 8.редагувати та видаляти нотатки;                                                                                 %%% Создать новую функцию (каждый раз вводится новые записи или только одни и их мы сможем редактировать)
 # 9.додавати в нотатки "теги", ключові слова, що описують тему та предмет запису;                                   %%% Создать новую функцию (предполагаю что записи будем сохранять в виде ключа(тега) и значения)
 # 10.здійснювати пошук та сортування нотаток за ключовими словами (тегами);                                         %%% Создать новую функцию (поиск будет совершатся по ключам и мы сможем редактировать значение, если контакт захочет при регистрации поменять тему записи то значит мы перезапишем, старую удаляем и записываем как новую)
+
 # 11.сортувати файли у зазначеній папці за категоріями (зображення, документи, відео та ін.).                       %%% Реализовано
 # 12.Додаткове ускладнене завдання: Бот повинен аналізувати введений текст і намагатися вгадати,                    %%% Пока фиг знает как такое делать (пока забить и так много всего)
 # що хоче від нього користувач і запропонувати найближчу команду для виконання
-# 13.Реализация команды "help" которая выводит все доступные команды бота                                           %%% Реализовано
-# 14.Переработка всего проекта под классы, продумать как будут вводится команды                                     %%% Нужно для того чтобы все было красиво и не было стыдно показать проект
-# (тоесть через инпут вводим команду, если такая есть в массиве то выводим текстовое сообщение,
-#  какое количество и каких данных нужно ввести, или просто через пару инпутов)
-# 15.Реализовать управление через команды с консоли пример дз 9                                                     %%% В процессе
-# 16.проєкт має бути збережений в окремому репозиторії та бути загальнодоступним (GitHub, GitLab або BitBucket);    %%% Сохраняем на гите
-# 17.проєкт містить докладну інструкцію щодо встановлення та використання;                                          %%% Создать инструкцию
-# 18.проєкт встановлюється як Python-пакет та може бути викликаний у будь-якому місці системи                       %%% Создать установщик, пример clean_folder
+# 13.Реализация команды "help" которая выводит все доступные команды бота                                           %%% Частично
+# 14.Реализовать управление через команды с консоли пример дз 9                                                     %%% Частично
+# 15.проєкт має бути збережений в окремому репозиторії та бути загальнодоступним (GitHub, GitLab або BitBucket);    %%% Сохраняем на гите
+# 16.проєкт містить докладну інструкцію щодо встановлення та використання;                                          %%% Создать инструкцию
+# 17.проєкт встановлюється як Python-пакет та може бути викликаний у будь-якому місці системи                       %%% Создать установщик, пример clean_folder
 # відповідною командою після встановлення;
-# 19.проєкт повністю реалізує мінімум 8 вимог із 12 описаних у завданні;
-# 20.персональний помічник зберігає інформацію на жорсткому диску в папці користувача                               %%% В процессе
+# 18.проєкт повністю реалізує мінімум 8 вимог із 12 описаних у завданні;                                            %%% 4 из 19
+# 19.персональний помічник зберігає інформацію на жорсткому диску в папці користувача                               %%% Реализовано
 # і може бути перезапущений без втрати даних.
-
-# 21.ваши предложения
-# так как у нас недостаток людей то первоочередно делаем самые нужные модули если останется время можно допилить еще что-то
 
 from distutils.command import clean
 import os
 import pickle
-import clean
+import final_project.clean
 
 from collections import UserDict
 from datetime import date, datetime
-# from typing import Self
 
 
 class Field:
@@ -56,7 +51,21 @@ class Field:
 
 
 class Name(Field):
-    ...
+    def self_name(self, name):
+        self.__privat_name = None
+        self.name = name
+        return str(self.name)
+
+    @property
+    def name(self):
+        return self.__privat_name
+
+    @name.setter
+    def name(self, name: str):
+        if name.isalpha():
+            self.__privat_name = name
+        else:
+            raise Exception("Wrong name")
 
 
 class Phone(Field):
@@ -213,6 +222,11 @@ class AddressBook(UserDict):
         else:
             raise StopIteration("Empty list")
 
+    def show_all(self, data):
+        for name, obj in self.data.items():
+            data[name] = obj
+        return data
+    
     def pack_user(self):
         self.data = records
         print(records.data, records, self.data)
@@ -222,21 +236,26 @@ class AddressBook(UserDict):
             pickle.dump(self.data, fh)
 
     def unpack_user(self):
-        file_name = "C:\\py_robot\\users.bin"
+        with open("C:\\py_robot\\users.bin", "rb") as fh:
+            unpacked = pickle.load(fh)
 
-        if os.path.exists(file_name):
-            with open(file_name, "rb") as file:
-                unpacked = pickle.load(file)
+        # for name, object in unpacked.items():
+        #     self.data[name] = object
 
-            for name, object in unpacked.items():
-                self.data[name] = object
-            print(self.data)
-        else:
-            return "File not found."
+        for name, object in unpacked.items():
+            self[name] = object
+        
+        return self
 
-
+def fill_the_record(records:AddressBook):
+    users = {}
+    users = AddressBook.unpack_user(users)
+    for name, obj in users.items():
+        records.data[name] = obj
+    return records
 
 records = AddressBook()
+records = fill_the_record(records)
 
 
 def search(*args):
@@ -362,15 +381,18 @@ def change_record(*args):
     name = args[0]
     old_phone_number = sanitize_phone_number(args[1])
     new_phone_number = sanitize_phone_number(args[2])
-    if not records.data.get(name):
-        raise ValueError("wrong name")
+    if len(old_phone_number) == 10 and old_phone_number.isdigit() and len(new_phone_number) == 10 and new_phone_number.isdigit():
+        if not records.data.get(name):
+            raise ValueError("wrong name")
+        else:
+            try:
+                name_record = records.data.get(name)
+                name_record.edit_phone(old_phone_number, new_phone_number)
+                return f"Change record {name = }, {new_phone_number = }"
+            except:
+                return f"The phone {old_phone_number} is not found."
     else:
-        try:
-            name_record = records.data.get(name)
-            name_record.edit_phone(old_phone_number, new_phone_number)
-            return f"Change record {name = }, {new_phone_number = }"
-        except:
-            return f"The phone {old_phone_number} is not found."
+        return "Old phone and New phone must be 10 digits."
 
 
 def delete_record(*args):
@@ -417,6 +439,8 @@ def get_phone(*args):
     rec = records.find(name)
     if rec:
         return rec
+    else: 
+        return f"Name: {name} not found."
 
 def sort_folder(*args):
     path = str(input("Write path to folder: "))
@@ -427,38 +451,43 @@ def sort_folder(*args):
 
 # @user_error
 def show_all(*args):
-    n = None
-    try:
-        n = int(args[0])
-        if n is not None:
-            return_lst_result = []
-            if len(records) >= 1:
-                for cont in records.iterator(n):
-                    return_lst = []
-                    for ch in cont:
-                        new_ch = (
-                            str(ch)
-                            .strip()
-                            .replace("(", "")
-                            .replace(")", "")
-                            .replace("'", "")
-                        )
-                        return_lst.append(new_ch)
-                    return_lst_result.append(return_lst)
-                return return_lst_result
-            else:
-                return "Empty"
-    except:
-        if n is None:
-            return_str = "\n"
-            if len(records.data) >= 1:
-                for _, numbers in records.data.items():
-                    return_str += str(numbers) + "\n"
-                return return_str
-            else:
-                return "Empty"
-        else:
-            return return_lst_result  # "No records to show"
+    data = {}
+    data = AddressBook.show_all(records, data)
+    for i,v in data.items():
+        print(get_phone(i))
+    
+    # n = None
+    # try:
+    #     n = int(args[0])
+    #     if n is not None:
+    #         return_lst_result = []
+    #         if len(records) >= 1:
+    #             for cont in records.iterator(n):
+    #                 return_lst = []
+    #                 for ch in cont:
+    #                     new_ch = (
+    #                         str(ch)
+    #                         .strip()
+    #                         .replace("(", "")
+    #                         .replace(")", "")
+    #                         .replace("'", "")
+    #                     )
+    #                     return_lst.append(new_ch)
+    #                 return_lst_result.append(return_lst)
+    #             return return_lst_result
+    #         else:
+    #             return "Empty"
+    # except:
+    #     if n is None:
+    #         return_str = "\n"
+    #         if len(records.data) >= 1:
+    #             for _, numbers in records.data.items():
+    #                 return_str += str(numbers) + "\n"
+    #             return return_str
+    #         else:
+    #             return "Empty"
+    #     else:
+    #         return return_lst_result  # "No records to show"
 
 
 def close_cmd(*args):
@@ -477,8 +506,6 @@ COMMANDS = {
     get_phone: "phone",
     show_all: "show_all",
     sort_folder: "sort_folder",
-    # save_ab: "save_ab",
-    # load_ab: "load_ab",
     search: "search",
     help_cmd: "help",
     close_cmd: ("good bye", "close", "exit"),
