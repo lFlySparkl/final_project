@@ -28,11 +28,12 @@ from distutils.command import clean
 from genericpath import exists
 import os
 import pickle
-import clean
 import re
 
 from collections import UserDict
 from datetime import date, datetime
+
+from final_project.clean import main as sort_files
 
 
 class Field:
@@ -575,7 +576,7 @@ def get_phone(*args):
 def sort_folder(*args):
     path = str(input("Write path to folder: "))
     if os.path.exists(path):
-        clean.main(path)
+        sort_files(path)
     else:
         return "Path not exist."
 
