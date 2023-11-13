@@ -25,9 +25,11 @@
 # і може бути перезапущений без втрати даних.
 
 from distutils.command import clean
+from genericpath import exists
 import os
 import pickle
-import final_project.clean
+import clean
+import re
 
 from collections import UserDict
 from datetime import date, datetime
@@ -67,6 +69,8 @@ class Name(Field):
         else:
             raise Exception("Wrong name")
 
+class Location(Field):
+    ...
 
 class Phone(Field):
     def __init__(self, value):
@@ -88,7 +92,32 @@ class Phone(Field):
     def __str__(self):
         return f"Phone: {self.value}"
 
+class Mail(Field):
+    def __init__(self, value):
+        self.__value = None
+        self.value = value
 
+    @property
+    def value(self):
+        return self.__value
+
+    @value.setter
+    def value(self, value: str) -> None:
+        patern_mail = r"[A-z.]+\w+@[A-z]+\.[A-z]{2,}"
+        try:
+            if bool(re.match(patern_mail, value)):
+                self.__value = value
+            else:
+                raise ValueError("Mail should have the following format nickname@domen.yy")
+        except ValueError as e:
+            raise ValueError("Mail should have the following format nickname@domen.yy") from e
+
+
+    # def __str__(self):
+    #     return f"Mail: {self.__value}"
+    def __str__(self) -> str:
+        return f"Mail: {self.__value}"
+    
 class Birthday(Field):
     def __init__(self, value):
         super().__init__(value)
@@ -110,9 +139,12 @@ class Birthday(Field):
 
 
 class Record:
-    def __init__(self, name, phone=None):
+    def __init__(self, name, phone = None, mail = None):
         self.name = Name(name)
         self.phones = [Phone(phone)] if phone else []
+        print(self.phones)
+        self.mails = [Mail(mail)] if mail else []
+        print(self.mails)
 
     def add_phone(self, phone):
         new_phone = "".join(filter(str.isdigit, phone))
@@ -121,8 +153,15 @@ class Record:
         # try:
         self.phones.append(Phone(new_phone))
         # except:
-        #     raise ValueError("Not enough number setter")
+        #  raise ValueError("Not enough number setter")
 
+    def add_location(self, location):
+        self.location = Location(location)
+
+    def add_mail(self, value):
+        self.mails.append(Mail(value))
+
+    
     def edit_phone(self, old_phone, new_phone):
         found = False
         for phone in self.phones:
@@ -131,6 +170,16 @@ class Record:
                 found = True
         if not found:
             raise ValueError(f"The phone {old_phone} is not found.")
+            # return f"The phone {old_phone} is not found."
+    
+    def edit_mail(self, old_mail, new_mail):
+        found = False
+        for mail in self.mails:
+            if mail.value == old_mail:
+                mail.value = new_mail
+                found = True
+        if not found:
+            raise ValueError(f"The mail {old_mail} is not found.")
             # return f"The phone {old_phone} is not found."
 
     def find_phone(self, phone: str):
@@ -170,13 +219,32 @@ class Record:
                     return delta_days.days
 
     def __str__(self):
-        try:
-            return f"Contact name: {self.name.value}, phones: {'; '.join(p.value for p in self.phones)}, birthday {self.birthday}"
-        except:
-            return f"Contact name: {self.name.value}, phones: {'; '.join(p.value for p in self.phones)}"
+        # try:
+        #     return f"Contact name: {self.name.value}, phones: {'; '.join(p.value for p in self.phones)}, birthday {self.birthday}, mails: {'; '.join(p.value for p in self.mails)}"
+        # except:
+        #     return f"Contact name: {self.name.value}, phones: {'; '.join(p.value for p in self.phones)}, birthday {self.birthday}"
+        # except:
+        #     return f"Contact name: {self.name.value}, phones: {'; '.join(p.value for p in self.phones)}"
+
+        return_res = f"Contact name: {self.name.value}"
+
+        if hasattr(self, 'phones') and self.phones:
+            return_res += f", phones: {'; '.join(p.value for p in self.phones)}"
+
+        if hasattr(self, 'birthday') and self.birthday:
+            return_res += f", birthday: {self.birthday}"
+
+        if hasattr(self, 'mails') and self.mails:
+            return_res += f", mail: {'; '.join(m.value for m in self.mails)}"
+
+        if hasattr(self, 'location') and self.location:
+            return_res += f", location: {self.location}"
+
+        return return_res
 
 
 class AddressBook(UserDict):
+
     def add_record(self, new_contact: Record) -> None:
         self.data[new_contact.name.value] = new_contact
         print(self.data)
@@ -230,28 +298,31 @@ class AddressBook(UserDict):
     def pack_user(self):
         self.data = records
         print(records.data, records, self.data)
-        file_name = "C:\\py_robot\\users.bin"
+        file_name = os.getenv("SystemDrive")+"\\py_robot\\users.bin"
+        os.makedirs(os.path.dirname(file_name), exist_ok=True)
         with open(file_name, "wb") as fh:
             print(self.data)
             pickle.dump(self.data, fh)
 
     def unpack_user(self):
-        with open("C:\\py_robot\\users.bin", "rb") as fh:
-            unpacked = pickle.load(fh)
+        file_name = os.getenv("SystemDrive")+"\\py_robot\\users.bin"
+        if exists(file_name):
 
-        # for name, object in unpacked.items():
-        #     self.data[name] = object
+            with open(file_name, "rb") as fh:
+                unpacked = pickle.load(fh)
 
-        for name, object in unpacked.items():
-            self[name] = object
+            for name, object in unpacked.items():
+                self[name] = object
         
-        return self
+            return self
 
 def fill_the_record(records:AddressBook):
     users = {}
     users = AddressBook.unpack_user(users)
-    for name, obj in users.items():
-        records.data[name] = obj
+    if users:
+        for name, obj in users.items():
+            records.data[name] = obj
+        return records
     return records
 
 records = AddressBook()
@@ -266,6 +337,8 @@ def user_error(func):
     def inner(*args):
         try:
             return func(*args)
+        # except AttributeError:
+            # return "ab empty"
         except IndexError:
             return "Give me name and phone please"
         except KeyError:
@@ -286,9 +359,12 @@ def user_error(func):
                 return "Invalid data format"
             if str(e) == "Invalid phone number, should contain 10 digits":
                 return "Invalid phone number, should contain 10 digits"
+            if str(e) == "Mail should have the following format nickname@domen.yy":
+                return "Mail should have the following format nickname@domen.yy"
+            if str(e) == "wrong name, try again":
+                return "wrong name, try again"
             else:
                 raise e  # Піднімаэмо помилку наверх, якщо вона іншого типу
-
     return inner
 
 
@@ -352,7 +428,52 @@ def bd_add(*args):
         name_record.add_birthday(bd)
     return f"Add record {name = }, {bd = }"
 
+def loc_add(*args):
+    name = args[0]
+    loc = args[1:]
+    location = ""
+    for ch in loc:
+        location +=  " " + ch
+    if not records.data.get(name):
+        name_record = Record(name)
+        name_record.add_location(location)
+        records.add_record(name_record)
+    else:
+        name_record = records.data.get(name)
+        name_record.add_location(location)
+    return f"Add record {name = }, {location = }"
 
+@user_error 
+def mail_add(*args):
+    name = args[0]
+    mail = str(args[1])
+    if not records.data.get(name):
+        name_record = Record(name)
+        name_record.add_mail(mail)
+        records.add_record(name_record)
+    else:
+        name_record = records.data.get(name)
+        name_record.add_mail(mail)
+    return f"Add record {name = }, {mail = }"
+
+@user_error
+def mail_change(*args):
+    name = args[0]
+    old_mail = str(args[1])
+    new_mail = str(args[2])
+    if not records.data.get(name):
+        raise ValueError("wrong name, try again")
+    else:
+        try:
+            name_record = records.data.get(name)
+            try:
+                name_record.edit_mail(old_mail, new_mail)
+                return f"Change record {name = }, {new_mail = }"
+            except:
+                return f"The mail {new_mail} is not valid."
+        except:
+            return f"The mail {old_mail} is not found."
+        
 def days_to_bd(*args):
     try:
         name = args[0]
@@ -397,8 +518,13 @@ def change_record(*args):
 
 def delete_record(*args):
     name = args[0]
-    records.delete(name)
-    return f"Contact name: {name}, delete successfull"
+    if name in records:
+        records.delete(name)
+        return f"Contact name: {name}, delete successfull"
+    else:
+        return f"Contact name: {name}, not found"
+
+    
 
 
 def unknown_cmd(*args):
@@ -415,17 +541,21 @@ def help_cmd(*args):
         "avalible command:",
         "hello - just say hello",
         "help - show avalible cmd",
-        "add - add record - format 'name phone'",
+        "add - add record or add additional phone - format 'name phone'",
         "bd_add - add birthdayd - format 'name date birthday (YYYY-MM-DD)'",
-        "days_to_bd - days to birthday",
+        "mail_add - add mail - format 'name nickname@domen.yy'",
+        "mail_change - change mail - format 'name old mail new mail'",
+        "location_add - add location/or replace, if data olready exist"
+        "add_notes - ",
+        "serch_note - ",
+        "show_bd_by_days - "
+        "days_to_bd - days to birthday - format 'name'",
         "change - change record - format 'name old phone new phone'",
         "delete - delete record - format 'name'",
         "phone - get phone by name - format 'phone name'",
         "show_all - show all phone book",
         "sort_folder - sort dirty folder by Audio, Docs, Archives, Music, Images, Other"
-        "save_ab - save address book",
-        "search - search by characters in name, or by digits in phone"
-        "load_ab - load address book",
+        "search - search by name or phone number"
         "good bye/close/exit - shotdown this script",
     ]
     for ch in cmd_list:
@@ -451,43 +581,47 @@ def sort_folder(*args):
 
 # @user_error
 def show_all(*args):
-    data = {}
-    data = AddressBook.show_all(records, data)
-    for i,v in data.items():
-        print(get_phone(i))
+    # data = {}
+    # data = AddressBook.show_all(records, data)
+    # contacts = []
+    # for i,v in data.items():
+    #     user = ""
+    #     user += i
+    #     print(v.value)
+    #     contacts.append(user)
+
+    #     print(get_phone(i),v)
     
-    # n = None
-    # try:
-    #     n = int(args[0])
-    #     if n is not None:
-    #         return_lst_result = []
-    #         if len(records) >= 1:
-    #             for cont in records.iterator(n):
-    #                 return_lst = []
-    #                 for ch in cont:
-    #                     new_ch = (
-    #                         str(ch)
-    #                         .strip()
-    #                         .replace("(", "")
-    #                         .replace(")", "")
-    #                         .replace("'", "")
-    #                     )
-    #                     return_lst.append(new_ch)
-    #                 return_lst_result.append(return_lst)
-    #             return return_lst_result
-    #         else:
-    #             return "Empty"
-    # except:
-    #     if n is None:
-    #         return_str = "\n"
-    #         if len(records.data) >= 1:
-    #             for _, numbers in records.data.items():
-    #                 return_str += str(numbers) + "\n"
-    #             return return_str
-    #         else:
-    #             return "Empty"
-    #     else:
-    #         return return_lst_result  # "No records to show"
+    n = None
+    try:
+        n = int(args[0])
+        if n is not None:
+            return_lst_result = []
+            if len(records) >= 1:
+                for cont in records.iterator(n):
+                    return_lst = []
+                    for ch in cont:
+                        new_ch = (str(ch).strip()
+                                        .replace("(", "")
+                                        .replace(")", "")
+                                        .replace("'", "")
+                                )
+                        return_lst.append(new_ch)
+                    return_lst_result.append(return_lst)
+                return return_lst_result
+            else:
+                return "Empty"
+    except:
+        if n is  None:
+            return_str = "\n"
+            if len(records.data) >=1:
+                for _, numbers in records.data.items() :
+                    return_str += str(numbers) + "\n"
+                return return_str
+            else:
+                return "Empty"
+        else:
+            return return_lst_result #"No records to show"
 
 
 def close_cmd(*args):
@@ -496,9 +630,10 @@ def close_cmd(*args):
 
 COMMANDS = {
     add_record: "add",
-    # add_phone: "add phone",
-    # edit_phone: "edit phone",
     bd_add: "bd_add",
+    mail_add: "mail_add",
+    loc_add: "location_add",
+    mail_change: "mail_change",
     days_to_bd: "days_to_bd",
     delete_record: "delete",
     change_record: "change",
