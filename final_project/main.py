@@ -35,9 +35,6 @@ from datetime import date, datetime
 from prompt_toolkit import prompt
 from prompt_toolkit.completion import WordCompleter
 
-from final_project.clean import main as sort_files
-
-
 class Field:
     def __init__(self, value):
         self.__value = None
@@ -608,7 +605,7 @@ def help_cmd(*args):
         "mail_add - add mail - format 'name nickname@domen.yy'",
         "mail_change - change mail - format 'name old mail new mail'",
         "location_add - add location/or replace, if data olready exist",
-        "add_notes - add note - format: #tags text",
+        "add_note - add note - format: #tags text",
         "serch_note - exact match for tags - format: #tags",
         "edit_note - exact match for tags - format: #tags",
         "delete_note - exact match for tags - format: #tags",
@@ -641,7 +638,6 @@ def sort_folder_by_path(*args):
     if os.path.exists(path):
         result = sort_folder.main(path)
         return result
-        sort_files(path)
     else:
         return "Path not exist."
 
