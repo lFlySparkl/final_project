@@ -172,7 +172,6 @@ def unzip_archives(path: str):
 
 def main(path):
     get_path = False
-    # path = str(input("Write path to folder: "))
 
     while get_path == False:
         if not Path(path).exists():
