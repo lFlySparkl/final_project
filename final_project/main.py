@@ -1,37 +1,39 @@
-# 1.зберігати контакти з іменами, адресами, номерами телефонів, email та днями народження до книги контактів;       %%% Впроцессе
-# 2.виводити список контактів, у яких день народження через задану кількість днів від поточної дати;                %%% Создать новую функцию (доработка функции из дз 8) 
+# 1.зберігати контакти з іменами, адресами, номерами телефонів, email та днями народження до книги контактів;       %%% Реализовано
+# 2.виводити список контактів, у яких день народження через задану кількість днів від поточної дати;                %%% Реализовано 
 # 3.перевіряти правильність введеного номера телефону та email під час створення або редагування запису 
-# та повідомляти користувача у разі некоректного введення;                                                          %%% Частично сделанно, доработка проверки при редактировании (возможно исправление проверки)
+# та повідомляти користувача у разі некоректного введення;                                                          %%% Реализовано
 # 4.здійснювати пошук контактів серед контактів книги;                                                              %%% Реализовано
 # 5.редагувати та видаляти записи з книги контактів;                                                                %%% Реализовано
-
-# 6.зберігати нотатки з текстовою інформацією;                                                                      %%% Создать новую функцию (сохраняем как текст, если захотим можно сделать доп функционал под каждый контакт, с выводом в дальнейшем)
-# 7.проводити пошук за нотатками;                                                                                   %%% Создать новую функцию
-# 8.редагувати та видаляти нотатки;                                                                                 %%% Создать новую функцию (каждый раз вводится новые записи или только одни и их мы сможем редактировать)
-# 9.додавати в нотатки "теги", ключові слова, що описують тему та предмет запису;                                   %%% Создать новую функцию (предполагаю что записи будем сохранять в виде ключа(тега) и значения)
+# 6.зберігати нотатки з текстовою інформацією;                                                                      %%% Реализовано
+# 7.проводити пошук за нотатками;                                                                                   %%% Реализовано
+# 8.редагувати та видаляти нотатки;                                                                                 %%% Реализовано
+# 9.додавати в нотатки "теги", ключові слова, що описують тему та предмет запису;                                   %%% Реализовано
 # 10.здійснювати пошук та сортування нотаток за ключовими словами (тегами);                                         %%% Создать новую функцию (поиск будет совершатся по ключам и мы сможем редактировать значение, если контакт захочет при регистрации поменять тему записи то значит мы перезапишем, старую удаляем и записываем как новую)
-
 # 11.сортувати файли у зазначеній папці за категоріями (зображення, документи, відео та ін.).                       %%% Реализовано
-# 12.Додаткове ускладнене завдання: Бот повинен аналізувати введений текст і намагатися вгадати,                    %%% Пока фиг знает как такое делать (пока забить и так много всего)
+# 12.Додаткове ускладнене завдання: Бот повинен аналізувати введений текст і намагатися вгадати,                    %%% Реализовано
 # що хоче від нього користувач і запропонувати найближчу команду для виконання
-# 13.Реализация команды "help" которая выводит все доступные команды бота                                           %%% Частично
-# 14.Реализовать управление через команды с консоли пример дз 9                                                     %%% Частично
+# 13.Реализация команды "help" которая выводит все доступные команды бота                                           %%% Реализовано
+# 14.Реализовать управление через команды с консоли пример дз 9                                                     %%% Реализовано
 # 15.проєкт має бути збережений в окремому репозиторії та бути загальнодоступним (GitHub, GitLab або BitBucket);    %%% Сохраняем на гите
 # 16.проєкт містить докладну інструкцію щодо встановлення та використання;                                          %%% Создать инструкцию
-# 17.проєкт встановлюється як Python-пакет та може бути викликаний у будь-якому місці системи                       %%% Создать установщик, пример clean_folder
+# 17.проєкт встановлюється як Python-пакет та може бути викликаний у будь-якому місці системи                       %%% У меня не работает
 # відповідною командою після встановлення;
-# 18.проєкт повністю реалізує мінімум 8 вимог із 12 описаних у завданні;                                            %%% 4 из 19
+# 18.проєкт повністю реалізує мінімум 8 вимог із 12 описаних у завданні;                                            %%% 15 из 19
 # 19.персональний помічник зберігає інформацію на жорсткому диску в папці користувача                               %%% Реализовано
 # і може бути перезапущений без втрати даних.
 
-from distutils.command import clean
 from genericpath import exists
 import os
 import pickle
+import sort_folder
 import re
-
+import notes
+from birthday import get_birthdays_per_week as birthday_from_now
+from convert import convert_str_dict
 from collections import UserDict
 from datetime import date, datetime
+from prompt_toolkit import prompt
+from prompt_toolkit.completion import WordCompleter
 
 from final_project.clean import main as sort_files
 
@@ -143,9 +145,9 @@ class Record:
     def __init__(self, name, phone = None, mail = None):
         self.name = Name(name)
         self.phones = [Phone(phone)] if phone else []
-        print(self.phones)
+        # print(self.phones)
         self.mails = [Mail(mail)] if mail else []
-        print(self.mails)
+        # print(self.mails)
 
     def add_phone(self, phone):
         new_phone = "".join(filter(str.isdigit, phone))
@@ -248,7 +250,7 @@ class AddressBook(UserDict):
 
     def add_record(self, new_contact: Record) -> None:
         self.data[new_contact.name.value] = new_contact
-        print(self.data)
+        # print(self.data)
         return f"Contact {new_contact.name.value} added succefully"
 
     def find(self, name):
@@ -298,11 +300,11 @@ class AddressBook(UserDict):
     
     def pack_user(self):
         self.data = records
-        print(records.data, records, self.data)
+        # print(records.data, records, self.data)
         file_name = os.getenv("SystemDrive")+"\\py_robot\\users.bin"
         os.makedirs(os.path.dirname(file_name), exist_ok=True)
         with open(file_name, "wb") as fh:
-            print(self.data)
+            # print(self.data)
             pickle.dump(self.data, fh)
 
     def unpack_user(self):
@@ -326,9 +328,21 @@ def fill_the_record(records:AddressBook):
         return records
     return records
 
+def fill_the_notes(notates:notes.NoteBook):
+    notate_arr = {}
+    notate_arr = notes.NoteBook.load_notes(notates)
+    if notate_arr:
+        for name, obj in notate_arr.items():
+            notates.data[name] = obj
+        return notates
+    return notates
+
 records = AddressBook()
 records = fill_the_record(records)
 
+notes_obj = notes.NoteBook()
+notes_obj = fill_the_notes(notes_obj)
+# print(notes_obj)
 
 def search(*args):
     return records.search(*args)
@@ -409,7 +423,7 @@ def add_record(*args):
         name_record = Record(name)
         name_record.add_phone(phone_number)
         records.add_record(name_record)
-        print(records)
+        # print(records)
     else:
         name_record = records.data.get(name)
         name_record.add_phone(phone_number)
@@ -525,7 +539,52 @@ def delete_record(*args):
     else:
         return f"Contact name: {name}, not found"
 
-    
+def add_note(*args):
+    global notes_obj
+    tag = []
+    text = ''
+    for i in args:
+        if "#" in i:
+             tag.append(i)
+        else:
+            text += i+" "
+    notes_obj = notes.add(notes_obj, tag, text)
+
+
+def edit_note(*args):
+    global notes_obj
+    tag = []
+    text = ''
+    for i in args:
+        if "#" in i:
+             tag.append(i)
+        else:
+            text += i+" "
+    result, to_write = notes.edit(notes_obj, tag, text)
+    if result == "error":
+        return to_write
+    else:
+        notes_obj = result
+        return to_write
+
+
+def search_note(*args):
+    global notes_obj
+    tag = args
+    result = notes.search(notes_obj, tag)
+    if result == "error":
+        return f"Note not found with this tags: {tag}"
+    else:
+        return result
+
+def delete_note(*args):
+    global notes_obj
+    tag = args
+    result = notes.delete(notes_obj, tag)
+    if notes_obj == result:
+        print(f"Tags:{tag} not found")
+    else:
+        notes_obj = result
 
 
 def unknown_cmd(*args):
@@ -546,17 +605,19 @@ def help_cmd(*args):
         "bd_add - add birthdayd - format 'name date birthday (YYYY-MM-DD)'",
         "mail_add - add mail - format 'name nickname@domen.yy'",
         "mail_change - change mail - format 'name old mail new mail'",
-        "location_add - add location/or replace, if data olready exist"
-        "add_notes - ",
-        "serch_note - ",
-        "show_bd_by_days - "
+        "location_add - add location/or replace, if data olready exist",
+        "add_notes - add note - format: #tags text",
+        "serch_note - exact match for tags - format: #tags",
+        "edit_note - exact match for tags - format: #tags",
+        "delete_note - exact match for tags - format: #tags",
+        "bd_in_days - show all users who has bd in n(7day max) days format 'bd_in_days 2(n days)'",
         "days_to_bd - days to birthday - format 'name'",
         "change - change record - format 'name old phone new phone'",
         "delete - delete record - format 'name'",
         "phone - get phone by name - format 'phone name'",
         "show_all - show all phone book",
-        "sort_folder - sort dirty folder by Audio, Docs, Archives, Music, Images, Other"
-        "search - search by name or phone number"
+        "sort_folder - sort dirty folder by Audio, Docs, Archives, Music, Images, Other",
+        "search - search by name or phone number",
         "good bye/close/exit - shotdown this script",
     ]
     for ch in cmd_list:
@@ -573,25 +634,17 @@ def get_phone(*args):
     else: 
         return f"Name: {name} not found."
 
-def sort_folder(*args):
+def sort_folder_by_path(*args):
     path = str(input("Write path to folder: "))
     if os.path.exists(path):
+        result = sort_folder.main(path)
+        return result
         sort_files(path)
     else:
         return "Path not exist."
 
 # @user_error
 def show_all(*args):
-    # data = {}
-    # data = AddressBook.show_all(records, data)
-    # contacts = []
-    # for i,v in data.items():
-    #     user = ""
-    #     user += i
-    #     print(v.value)
-    #     contacts.append(user)
-
-    #     print(get_phone(i),v)
     
     n = None
     try:
@@ -628,25 +681,51 @@ def show_all(*args):
 def close_cmd(*args):
     return "Good bye!"
 
+def bd_in_days(*args):
+    text = ''
+    in_days = int(args[0])
+    if in_days > 7:
+        print("seven days max")
+        in_days = 7
+    # print(in_days)
+    result_str = show_all()
+    result_dct = convert_str_dict(result_str)
+    # print(result_dct)
+    out_result = birthday_from_now(result_dct, in_days)
+    
+    for k,v in out_result.items():
+        text += k+" - Name: "
+        for i in v:
+            text += i+", "
+        text = text[:-2]+"\n"
+        out_result = text
+    return out_result
 
 COMMANDS = {
+    add_note:"add_note",
+    edit_note:"edit_note",
+    search_note:"search_note",
+    delete_note:"delete_note",
     add_record: "add",
     bd_add: "bd_add",
     mail_add: "mail_add",
     loc_add: "location_add",
     mail_change: "mail_change",
     days_to_bd: "days_to_bd",
+    bd_in_days: "bd_in_days",
     delete_record: "delete",
     change_record: "change",
     hello_cmd: "hello",
     get_phone: "phone",
     show_all: "show_all",
-    sort_folder: "sort_folder",
+    sort_folder_by_path: "sort_folder",
     search: "search",
     help_cmd: "help",
     close_cmd: ("good bye", "close", "exit"),
 }
 
+cmd_list = ["hello", "help", "add", "add_note", "edit_note", "search_note", "delete_note", "mail_add", "mail_change", "bd_add", "location_add",
+            "days_to_bd", "bd_in_days", "change", "delete", "phone", "show_all", "save_ab", "search", "sort_folder", "load_ab", "good bye", "close", "exit"]
 
 def parser(text: str):
     for func, kw in COMMANDS.items():
@@ -658,9 +737,13 @@ def parser(text: str):
 def main():
     book = AddressBook()
     book.unpack_user()
-    print(book)
+    note = notes.NoteBook()
+    note.load_notes()
+    # print(note)
+    # print(book)
+    completer = WordCompleter(cmd_list)
     while True:
-        user_input = input("Write comand:")
+        user_input = prompt("Write comand:", completer=completer)
         func, data = parser(user_input)
         if func == show_all and data:
             result1 = show_all(*data)
@@ -676,7 +759,7 @@ def main():
             print(func(*data))
         if func == close_cmd:
             book.pack_user()
-            print(book)
+            note.save_notes(notes_obj)
             break
 
 
