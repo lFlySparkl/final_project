@@ -1,4 +1,5 @@
 from collections import UserDict
+from ctypes.wintypes import tagSIZE
 from genericpath import exists
 import os
 import pickle
@@ -55,7 +56,11 @@ class NoteBook(UserDict):
 def add(notebooks : NoteBook, tag:dict, text:str):
     new_note = Record(tag, text)
     notebooks = notebooks.add_record(new_note)
-    return notebooks
+    tgs = ''
+    for i in tag:
+        tgs += i+", "
+    
+    return notebooks, f"Added note, tags:{tgs[:-2]}\nText: {text}"
 
 def edit(notebooks : NoteBook, tag:dict, new_text:str):
     result = notebooks
@@ -98,6 +103,5 @@ def delete(notebooks : NoteBook, tag:dict):
             tag_str += t.value
         if data_str == tag_str:
             result.pop(tags)
-            print(f"Note: {text}, was deleted")
-            return result
-    return result
+            return result, f"Note:{tags}, {text}, was deleted"
+    return result, f"Tags: {tags}, not found"

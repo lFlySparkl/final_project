@@ -546,7 +546,8 @@ def add_note(*args):
              tag.append(i)
         else:
             text += i+" "
-    notes_obj = notes.add(notes_obj, tag, text)
+    notes_obj, text = notes.add(notes_obj, tag, text)
+    return text
 
 
 def edit_note(*args):
@@ -578,11 +579,12 @@ def search_note(*args):
 def delete_note(*args):
     global notes_obj
     tag = args
-    result = notes.delete(notes_obj, tag)
-    if notes_obj == result:
-        print(f"Tags:{tag} not found")
-    else:
-        notes_obj = result
+    result, text = notes.delete(notes_obj, tag)
+    # if notes_obj == result:
+    #     print(f"Tags:{tag} not found")
+    # else:
+    notes_obj = result
+    return text
 
 
 def unknown_cmd(*args):
