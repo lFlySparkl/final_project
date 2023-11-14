@@ -1,9 +1,7 @@
-import sys
 import re
 import os
 import zipfile
 from pathlib import Path
-from sys import platform
 
 CATEGORIES = {
     "Audios": [".MP3", ".OGG", ".WAV", ".AMR", ".WMA", ".FLAC"],

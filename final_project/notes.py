@@ -1,5 +1,4 @@
 from collections import UserDict
-from ctypes.wintypes import tagSIZE
 from genericpath import exists
 import os
 import pickle
