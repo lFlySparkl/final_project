@@ -35,6 +35,8 @@ from datetime import date, datetime
 from prompt_toolkit import prompt
 from prompt_toolkit.completion import WordCompleter
 
+from final_project.clean import main as sort_files
+
 
 class Field:
     def __init__(self, value):
@@ -639,6 +641,7 @@ def sort_folder_by_path(*args):
     if os.path.exists(path):
         result = sort_folder.main(path)
         return result
+        sort_files(path)
     else:
         return "Path not exist."
 
